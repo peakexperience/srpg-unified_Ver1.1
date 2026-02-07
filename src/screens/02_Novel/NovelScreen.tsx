@@ -39,9 +39,11 @@ export const NovelScreen: React.FC = () => {
 
             {/* Character (placeholder) */}
             <div className="absolute bottom-24 left-1/2 -translate-x-1/2">
-                <div className="w-48 h-72 bg-gradient-to-b from-amber-400/80 to-amber-600/80 rounded-t-full flex items-center justify-center">
-                    <span className="text-4xl">👤</span>
-                </div>
+                <img
+                    src="/game-data/assets/characters/char-1.svg"
+                    alt="Character"
+                    className="w-48 h-72 object-contain drop-shadow-2xl"
+                />
             </div>
 
             {/* Text Box */}

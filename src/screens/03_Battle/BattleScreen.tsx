@@ -93,8 +93,8 @@ export const BattleScreen: React.FC = () => {
             <div className="flex-1 flex items-center justify-around px-8 relative">
                 {/* Player */}
                 <div className="flex flex-col items-center">
-                    <div className="w-32 h-40 bg-gradient-to-b from-blue-400 to-blue-600 rounded-lg flex items-center justify-center text-5xl shadow-xl">
-                        ⚔️
+                    <div className="w-32 h-40 bg-gradient-to-b from-blue-900/50 to-blue-950/50 rounded-lg flex items-center justify-center shadow-xl overflow-hidden">
+                        <img src="/game-data/assets/characters/char-1.svg" alt="Player" className="w-28 h-36 object-contain" />
                     </div>
                     <div className="mt-4 text-center">
                         <p className="text-white font-bold">プレイヤー</p>
@@ -124,8 +124,8 @@ export const BattleScreen: React.FC = () => {
 
                 {/* Enemy */}
                 <div className="flex flex-col items-center">
-                    <div className={`w-32 h-40 bg-gradient-to-b from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-5xl shadow-xl transition-transform ${isAnimating && !isPlayerTurn ? 'translate-x-2' : ''}`}>
-                        👾
+                    <div className={`w-32 h-40 bg-gradient-to-b from-purple-900/50 to-purple-950/50 rounded-lg flex items-center justify-center shadow-xl overflow-hidden transition-transform ${isAnimating && !isPlayerTurn ? 'translate-x-2' : ''}`}>
+                        <img src="/game-data/assets/characters/enemy-slime.svg" alt="Enemy" className="w-28 h-28 object-contain" />
                     </div>
                     <div className="mt-4 text-center">
                         <p className="text-white font-bold">{enemy?.name ?? 'エネミー'}</p>
