@@ -1,0 +1,127 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "scenario.schema.json",
+    "title": "Scenario Data",
+    "description": "SRPGシナリオデータ定義",
+    "type": "object",
+    "required": [
+        "id",
+        "title",
+        "phases"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "シナリオの一意識別子"
+        },
+        "title": {
+            "type": "string",
+            "description": "シナリオの表示名"
+        },
+        "phases": {
+            "type": "array",
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "#/definitions/NovelPhase"
+                    },
+                    {
+                        "$ref": "#/definitions/BattlePhase"
+                    },
+                    {
+                        "$ref": "#/definitions/ResultPhase"
+                    }
+                ]
+            },
+            "description": "シナリオのフェーズ配列"
+        }
+    },
+    "definitions": {
+        "NovelPhase": {
+            "type": "object",
+            "required": [
+                "type",
+                "speaker",
+                "text"
+            ],
+            "properties": {
+                "type": {
+                    "const": "NOVEL"
+                },
+                "speaker": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "backgroundId": {
+                    "type": "string"
+                }
+            }
+        },
+        "BattlePhase": {
+            "type": "object",
+            "required": [
+                "type",
+                "enemyId",
+                "heroIds"
+            ],
+            "properties": {
+                "type": {
+                    "const": "BATTLE"
+                },
+                "enemyId": {
+                    "type": "string"
+                },
+                "heroIds": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "backgroundId": {
+                    "type": "string"
+                }
+            }
+        },
+        "ResultPhase": {
+            "type": "object",
+            "required": [
+                "type",
+                "rewards"
+            ],
+            "properties": {
+                "type": {
+                    "const": "RESULT"
+                },
+                "rewards": {
+                    "type": "object",
+                    "required": [
+                        "exp",
+                        "gold"
+                    ],
+                    "properties": {
+                        "exp": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "gold": {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

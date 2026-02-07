@@ -1,0 +1,15 @@
+{
+    "$schema": "../schemas/manifest.schema.json",
+    "id": "demo-project",
+    "name": "デモプロジェクト",
+    "version": "1.0.0",
+    "entryScenario": "demo-chapter-01",
+    "defaultCharacters": [
+        "char-1",
+        "char-2"
+    ],
+    "settings": {
+        "difficulty": "normal",
+        "enableBGM": true
+    }
+}

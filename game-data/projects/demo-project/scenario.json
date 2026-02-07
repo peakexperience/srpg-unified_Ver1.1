@@ -1,0 +1,28 @@
+{
+    "$schema": "../schemas/scenario.schema.json",
+    "id": "demo-chapter-01",
+    "title": "第1章：始まりの森",
+    "phases": [
+        {
+            "type": "NOVEL",
+            "speaker": "レミ",
+            "text": "ここは...どこなの？不思議な森に迷い込んでしまったわ。",
+            "backgroundId": "bg-forest-01"
+        },
+        {
+            "type": "BATTLE",
+            "enemyId": "enemy-slime-01",
+            "heroIds": [
+                "char-1"
+            ]
+        },
+        {
+            "type": "RESULT",
+            "rewards": {
+                "exp": 100,
+                "gold": 50,
+                "items": []
+            }
+        }
+    ]
+}

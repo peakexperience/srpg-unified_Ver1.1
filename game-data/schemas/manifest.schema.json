@@ -1,0 +1,66 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "manifest.schema.json",
+    "title": "Project Manifest",
+    "description": "SRPGプロジェクトのマニフェスト定義",
+    "type": "object",
+    "required": [
+        "id",
+        "name",
+        "version",
+        "entryScenario",
+        "defaultCharacters",
+        "settings"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "スキーマファイルへの参照"
+        },
+        "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$",
+            "description": "プロジェクトの一意識別子（小文字英数字とハイフンのみ）"
+        },
+        "name": {
+            "type": "string",
+            "description": "プロジェクトの表示名"
+        },
+        "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "description": "セマンティックバージョン"
+        },
+        "entryScenario": {
+            "type": "string",
+            "description": "ゲーム開始時に読み込むシナリオID"
+        },
+        "defaultCharacters": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "初期パーティのキャラクターID配列"
+        },
+        "settings": {
+            "type": "object",
+            "properties": {
+                "difficulty": {
+                    "type": "string",
+                    "enum": [
+                        "easy",
+                        "normal",
+                        "hard"
+                    ]
+                },
+                "enableBGM": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "difficulty",
+                "enableBGM"
+            ]
+        }
+    }
+}
