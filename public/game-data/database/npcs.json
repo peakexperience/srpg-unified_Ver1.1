@@ -1,0 +1,34 @@
+{
+    "npcs": [
+        {
+            "id": "npc-inn-keeper",
+            "name": "宿屋の主人",
+            "description": "村の宿を営む中年男性。情報通。",
+            "location": "始まりの村",
+            "defaultTags": [
+                "村人",
+                "情報"
+            ]
+        },
+        {
+            "id": "npc-blacksmith",
+            "name": "鍛冶師ガルド",
+            "description": "腕利きの鍛冶師。良質な武器を作る。",
+            "location": "鍛冶の街",
+            "defaultTags": [
+                "職人",
+                "装備"
+            ]
+        },
+        {
+            "id": "npc-mysterious-merchant",
+            "name": "謎の商人",
+            "description": "どこからともなく現れる不思議な商人。",
+            "location": "各地",
+            "defaultTags": [
+                "商人",
+                "レア"
+            ]
+        }
+    ]
+}

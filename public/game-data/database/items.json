@@ -1,0 +1,52 @@
+{
+    "items": [
+        {
+            "id": "item-potion",
+            "name": "回復薬",
+            "description": "HPを30回復する基本的な薬。",
+            "type": "消費",
+            "effect": "HP+30",
+            "price": 50,
+            "defaultTags": [
+                "回復",
+                "消費"
+            ]
+        },
+        {
+            "id": "item-ether",
+            "name": "エーテル",
+            "description": "MPを20回復する青い液体。",
+            "type": "消費",
+            "effect": "MP+20",
+            "price": 100,
+            "defaultTags": [
+                "回復",
+                "消費"
+            ]
+        },
+        {
+            "id": "item-antidote",
+            "name": "解毒剤",
+            "description": "毒状態を解除する。",
+            "type": "消費",
+            "effect": "毒解除",
+            "price": 30,
+            "defaultTags": [
+                "回復",
+                "状態異常"
+            ]
+        },
+        {
+            "id": "item-key-forest",
+            "name": "森の鍵",
+            "description": "森の奥への扉を開ける古い鍵。",
+            "type": "大事なもの",
+            "effect": "-",
+            "price": 0,
+            "defaultTags": [
+                "鍵",
+                "ストーリー"
+            ]
+        }
+    ]
+}

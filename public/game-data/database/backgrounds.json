@@ -1,0 +1,44 @@
+{
+    "locations": [
+        {
+            "id": "bg-forest-01",
+            "name": "始まりの森",
+            "description": "冒険者が最初に訪れる緑豊かな森。",
+            "type": "フィールド",
+            "defaultTags": [
+                "森",
+                "序盤"
+            ]
+        },
+        {
+            "id": "bg-village-01",
+            "name": "始まりの村",
+            "description": "小さいが活気のある村。物語の起点。",
+            "type": "街",
+            "defaultTags": [
+                "村",
+                "安全"
+            ]
+        },
+        {
+            "id": "bg-dungeon-01",
+            "name": "古代遺跡",
+            "description": "謎に包まれた古代文明の遺跡。",
+            "type": "ダンジョン",
+            "defaultTags": [
+                "遺跡",
+                "危険"
+            ]
+        },
+        {
+            "id": "bg-castle-01",
+            "name": "王城",
+            "description": "国の中心にそびえる荘厳な城。",
+            "type": "街",
+            "defaultTags": [
+                "城",
+                "重要"
+            ]
+        }
+    ]
+}

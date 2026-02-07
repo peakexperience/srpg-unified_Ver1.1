@@ -1,0 +1,25 @@
+{
+    "bgm": [
+        {
+            "id": "bgm-title",
+            "name": "タイトル",
+            "description": "タイトル画面のBGM",
+            "file": "title.mp3",
+            "duration": "2:30"
+        },
+        {
+            "id": "bgm-field",
+            "name": "フィールド",
+            "description": "フィールド探索用BGM",
+            "file": "field.mp3",
+            "duration": "3:45"
+        },
+        {
+            "id": "bgm-battle",
+            "name": "通常バトル",
+            "description": "通常戦闘BGM",
+            "file": "battle.mp3",
+            "duration": "2:15"
+        }
+    ]
+}

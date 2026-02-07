@@ -1,0 +1,43 @@
+{
+    "enemies": [
+        {
+            "id": "enemy-slime-01",
+            "name": "スライム",
+            "description": "森に生息する小さなモンスター。",
+            "hp": 30,
+            "atk": 5,
+            "def": 2,
+            "exp": 10,
+            "defaultTags": [
+                "スライム",
+                "弱"
+            ]
+        },
+        {
+            "id": "enemy-goblin-01",
+            "name": "ゴブリン",
+            "description": "洞窟に潜む小鬼。群れで行動する。",
+            "hp": 50,
+            "atk": 12,
+            "def": 5,
+            "exp": 25,
+            "defaultTags": [
+                "ゴブリン",
+                "中"
+            ]
+        },
+        {
+            "id": "enemy-skeleton-01",
+            "name": "スケルトン",
+            "description": "蘇りし死者。剣を振るう。",
+            "hp": 45,
+            "atk": 15,
+            "def": 3,
+            "exp": 30,
+            "defaultTags": [
+                "アンデッド",
+                "中"
+            ]
+        }
+    ]
+}

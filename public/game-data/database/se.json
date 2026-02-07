@@ -1,0 +1,28 @@
+{
+    "se": [
+        {
+            "id": "se-attack",
+            "name": "攻撃",
+            "description": "通常攻撃SE",
+            "file": "attack.wav"
+        },
+        {
+            "id": "se-hit",
+            "name": "ヒット",
+            "description": "ダメージヒットSE",
+            "file": "hit.wav"
+        },
+        {
+            "id": "se-menu",
+            "name": "メニュー",
+            "description": "メニュー選択SE",
+            "file": "menu.wav"
+        },
+        {
+            "id": "se-victory",
+            "name": "勝利",
+            "description": "戦闘勝利SE",
+            "file": "victory.wav"
+        }
+    ]
+}

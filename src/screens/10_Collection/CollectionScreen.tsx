@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGameStore } from '@/core/stores/useGameStore';
-import { useCardEditorStore } from '@/core/stores/useCardEditorStore';
+import { useViewMode, ViewMode } from '@/core/hooks/useViewMode';
+import { ViewSwitcher } from '@/components/data-views/ViewSwitcher';
+import { TableView, CHARACTER_COLUMNS, ENEMY_COLUMNS, NPC_COLUMNS, PLACE_COLUMNS, ITEM_COLUMNS, SOUND_COLUMNS, EVENT_COLUMNS, CG_COLUMNS } from '@/components/data-views/TableView';
+import { GalleryView } from '@/components/data-views/GalleryView';
+import { KanbanView } from '@/components/data-views/KanbanView';
 import {
     Package, Sword, Sparkles, BookOpen, Library, Music, Settings,
     MapPin, User, Users, Skull, Box, Calendar, Image, Database,
@@ -11,6 +15,7 @@ import {
 // Category Definitions
 // ===================================
 type PrimaryCategory = 'item' | 'equipment' | 'skill' | 'story' | 'library' | 'sound' | 'studio';
+type SecondaryTab = 'place' | 'character' | 'npc' | 'enemy' | 'item_dict' | 'event' | 'cg' | 'sound_db';
 
 interface SubCategoryDef {
     id: string;
@@ -55,9 +60,9 @@ const SUB_CATEGORIES: Record<PrimaryCategory, SubCategoryDef[]> = {
         { id: 'npc', label: 'NPC', icon: Users },
         { id: 'enemy', label: 'エネミー', icon: Skull },
         { id: 'item_dict', label: 'アイテム', icon: Package },
-        { id: 'event_dict', label: 'イベント', icon: Calendar },
+        { id: 'event', label: 'イベント', icon: Calendar },
         { id: 'cg', label: 'CG', icon: Image },
-        { id: 'sound_dict', label: '音', icon: Music },
+        { id: 'sound_db', label: '音', icon: Music },
     ],
     sound: [
         { id: 'bgm', label: 'BGM', icon: Music },
@@ -72,177 +77,127 @@ const SUB_CATEGORIES: Record<PrimaryCategory, SubCategoryDef[]> = {
 };
 
 // ===================================
+// Data Cache Type
+// ===================================
+interface DataCache {
+    characters: Record<string, unknown>[];
+    enemies: Record<string, unknown>[];
+    npcs: Record<string, unknown>[];
+    backgrounds: Record<string, unknown>[];
+    items: Record<string, unknown>[];
+    bgm: Record<string, unknown>[];
+    se: Record<string, unknown>[];
+    events: Record<string, unknown>[];
+    gallery: Record<string, unknown>[];
+}
+
+// ===================================
 // Collection Screen Component
 // ===================================
 export const CollectionScreen: React.FC = () => {
     const { setScreen } = useGameStore();
-    const { database } = useCardEditorStore();
+    const { viewMode, setViewMode } = useViewMode('list');
 
     const [primaryCategory, setPrimaryCategory] = useState<PrimaryCategory>('library');
     const [subCategory, setSubCategory] = useState<string>('character');
+    const [dataCache, setDataCache] = useState<DataCache | null>(null);
+    const [loading, setLoading] = useState(true);
 
     const currentSubCategories = SUB_CATEGORIES[primaryCategory];
+
+    // Load all JSON data on mount
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            try {
+                const [characters, enemies, npcs, backgrounds, items, bgm, se, events, gallery] = await Promise.all([
+                    fetch('/game-data/database/characters.json').then(r => r.json()),
+                    fetch('/game-data/database/enemies.json').then(r => r.json()),
+                    fetch('/game-data/database/npcs.json').then(r => r.json()),
+                    fetch('/game-data/database/backgrounds.json').then(r => r.json()),
+                    fetch('/game-data/database/items.json').then(r => r.json()),
+                    fetch('/game-data/database/bgm.json').then(r => r.json()),
+                    fetch('/game-data/database/se.json').then(r => r.json()),
+                    fetch('/game-data/database/events.json').then(r => r.json()),
+                    fetch('/game-data/database/gallery.json').then(r => r.json()),
+                ]);
+                setDataCache({
+                    characters: characters.characters || [],
+                    enemies: enemies.enemies || [],
+                    npcs: npcs.npcs || [],
+                    backgrounds: backgrounds.locations || [],
+                    items: items.items || [],
+                    bgm: bgm.bgm || [],
+                    se: se.se || [],
+                    events: events.events || [],
+                    gallery: gallery.images || [],
+                });
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+            setLoading(false);
+        };
+        loadData();
+    }, []);
+
+    // Auto view switch based on tab
+    useEffect(() => {
+        if (subCategory === 'character') {
+            // Character tab defaults to custom view
+            // But since we don't have custom view yet, use gallery
+            if (viewMode === 'list') setViewMode('gallery');
+        }
+    }, [subCategory]);
 
     // Handle primary category change
     const handlePrimaryChange = (category: PrimaryCategory) => {
         setPrimaryCategory(category);
-        // Reset to first sub category
         const firstSub = SUB_CATEGORIES[category][0];
         if (firstSub) {
             setSubCategory(firstSub.id);
         }
     };
 
-    // ===================================
-    // Content Renderers
-    // ===================================
-    const renderContent = () => {
-        // Library category contents
+    // Get current data based on tab
+    const getData = (): Record<string, unknown>[] => {
+        if (!dataCache) return [];
+
         if (primaryCategory === 'library') {
             switch (subCategory) {
-                case 'character':
-                    return renderCharacters();
-                case 'enemy':
-                    return renderEnemies();
-                case 'place':
-                    return renderPlaceholder('地名データ');
-                case 'npc':
-                    return renderPlaceholder('NPCデータ');
-                case 'item_dict':
-                    return renderPlaceholder('アイテム辞典');
-                case 'event_dict':
-                    return renderPlaceholder('イベント辞典');
-                case 'cg':
-                    return renderPlaceholder('CGギャラリー');
-                case 'sound_dict':
-                    return renderPlaceholder('サウンド一覧');
-                default:
-                    return renderPlaceholder('データなし');
+                case 'character': return dataCache.characters;
+                case 'enemy': return dataCache.enemies;
+                case 'npc': return dataCache.npcs;
+                case 'place': return dataCache.backgrounds;
+                case 'item_dict': return dataCache.items;
+                case 'event': return dataCache.events;
+                case 'cg': return dataCache.gallery;
+                case 'sound_db':
+                    const bgmList = dataCache.bgm.map(item => ({ ...item, type: 'BGM' }));
+                    const seList = dataCache.se.map(item => ({ ...item, type: 'SE' }));
+                    return [...bgmList, ...seList];
+                default: return [];
             }
         }
-
-        // Skill category
-        if (primaryCategory === 'skill') {
-            switch (subCategory) {
-                case 'ability':
-                    return renderAbilities();
-                default:
-                    return renderPlaceholder(`${subCategory} データ`);
-            }
-        }
-
-        // Studio category
-        if (primaryCategory === 'studio') {
-            switch (subCategory) {
-                case 'json_view':
-                    return renderJsonView();
-                default:
-                    return renderPlaceholder(`${subCategory} 機能`);
-            }
-        }
-
-        // Default placeholder for other categories
-        return renderPlaceholder(`${primaryCategory}/${subCategory}`);
+        return [];
     };
 
-    const renderPlaceholder = (label: string) => (
-        <div className="flex flex-col items-center justify-center h-full text-slate-500">
-            <Database size={48} className="mb-4 opacity-50" />
-            <p className="text-lg font-medium">{label}</p>
-            <p className="text-sm mt-2">データが登録されていません</p>
-        </div>
-    );
-
-    const renderCharacters = () => (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-            {Object.values(database.characters).map((char) => (
-                <div
-                    key={char.id}
-                    className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 hover:border-amber-500/50 hover:bg-slate-800 transition-all cursor-pointer group"
-                >
-                    <div className="w-full aspect-[3/4] bg-gradient-to-b from-slate-700 to-slate-800 rounded-lg mb-3 flex items-center justify-center text-4xl group-hover:from-slate-600 group-hover:to-slate-700 transition-all">
-                        👤
-                    </div>
-                    <h3 className="text-white font-bold text-sm truncate">{char.name}</h3>
-                    <p className="text-amber-400 text-xs mt-1">{char.job}</p>
-                    <p className="text-slate-500 text-xs mt-1 line-clamp-2">{char.description}</p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                        {char.slots.abilityCardIds.slice(0, 2).map((abilId) => (
-                            <span key={abilId} className="text-[10px] px-2 py-0.5 bg-blue-900/50 text-blue-300 rounded">
-                                {database.abilities[abilId]?.name ?? abilId}
-                            </span>
-                        ))}
-                        {char.slots.abilityCardIds.length > 2 && (
-                            <span className="text-[10px] px-2 py-0.5 bg-slate-700 text-slate-400 rounded">
-                                +{char.slots.abilityCardIds.length - 2}
-                            </span>
-                        )}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
-    const renderEnemies = () => (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-            {Object.values(database.enemies).map((enemy) => (
-                <div
-                    key={enemy.id}
-                    className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 hover:border-red-500/50 hover:bg-slate-800 transition-all cursor-pointer"
-                >
-                    <div className="w-full aspect-square bg-gradient-to-b from-purple-900/50 to-slate-800 rounded-lg mb-3 flex items-center justify-center text-4xl">
-                        👾
-                    </div>
-                    <h3 className="text-white font-bold text-sm">{enemy.name}</h3>
-                    <p className="text-slate-500 text-xs mt-1 line-clamp-2">{enemy.description}</p>
-                    <div className="mt-2 grid grid-cols-2 gap-1 text-[10px]">
-                        <span className="text-red-400">HP: {enemy.stats.maxHp}</span>
-                        <span className="text-orange-400">ATK: {enemy.stats.atk}</span>
-                        <span className="text-blue-400">DEF: {enemy.stats.def}</span>
-                        <span className="text-green-400">EXP: {enemy.drops?.exp ?? 0}</span>
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
-    const renderAbilities = () => (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 p-4">
-            {Object.values(database.abilities).map((abil) => (
-                <div
-                    key={abil.id}
-                    className="bg-slate-800/80 rounded-lg p-4 border border-slate-700 hover:border-blue-500/50 transition-all cursor-pointer"
-                >
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-2xl">✨</span>
-                        <h3 className="text-white font-bold text-sm">{abil.name}</h3>
-                    </div>
-                    <p className="text-slate-400 text-xs line-clamp-2">{abil.description}</p>
-                    <div className="flex gap-2 mt-3">
-                        <span className="text-[10px] px-2 py-0.5 bg-purple-900/50 text-purple-300 rounded">
-                            MP {abil.cost}
-                        </span>
-                        {abil.element && (
-                            <span className="text-[10px] px-2 py-0.5 bg-red-900/50 text-red-300 rounded">
-                                {abil.element}
-                            </span>
-                        )}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-
-    const renderJsonView = () => {
-        const { exportJson } = useCardEditorStore.getState();
-        return (
-            <div className="p-4 h-full">
-                <pre className="h-full bg-slate-900 p-4 rounded-xl text-emerald-400 font-mono text-xs overflow-auto border border-slate-800">
-                    {exportJson()}
-                </pre>
-            </div>
-        );
+    // Get columns based on tab
+    const getColumns = () => {
+        switch (subCategory) {
+            case 'character': return CHARACTER_COLUMNS;
+            case 'enemy': return ENEMY_COLUMNS;
+            case 'npc': return NPC_COLUMNS;
+            case 'place': return PLACE_COLUMNS;
+            case 'item_dict': return ITEM_COLUMNS;
+            case 'event': return EVENT_COLUMNS;
+            case 'cg': return CG_COLUMNS;
+            case 'sound_db': return SOUND_COLUMNS;
+            default: return [];
+        }
     };
+
+    const currentData = getData();
+    const currentColumns = getColumns();
 
     // ===================================
     // Render
@@ -258,7 +213,7 @@ export const CollectionScreen: React.FC = () => {
                     <ArrowLeft size={18} className="text-slate-400" />
                 </button>
 
-                <nav className="flex items-center gap-1 overflow-x-auto">
+                <nav className="flex items-center gap-1 overflow-x-auto flex-1">
                     {PRIMARY_CATEGORIES.map((cat) => {
                         const Icon = cat.icon;
                         const isActive = primaryCategory === cat.id;
@@ -277,6 +232,13 @@ export const CollectionScreen: React.FC = () => {
                         );
                     })}
                 </nav>
+
+                {/* View Switcher */}
+                {primaryCategory === 'library' && (
+                    <div className="ml-4">
+                        <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
+                    </div>
+                )}
             </header>
 
             {/* Secondary Navigation */}
@@ -301,16 +263,55 @@ export const CollectionScreen: React.FC = () => {
             </nav>
 
             {/* Content Area */}
-            <main className="flex-1 overflow-auto bg-slate-950/50">
-                {renderContent()}
+            <main className="flex-1 overflow-hidden bg-slate-950/50">
+                {loading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="text-slate-500">読み込み中...</div>
+                    </div>
+                ) : primaryCategory === 'library' ? (
+                    <>
+                        {/* List View */}
+                        {viewMode === 'list' && (
+                            <TableView data={currentData} columns={currentColumns} />
+                        )}
+
+                        {/* Gallery View */}
+                        {viewMode === 'gallery' && (
+                            <GalleryView data={currentData} />
+                        )}
+
+                        {/* Kanban View */}
+                        {viewMode === 'kanban' && (
+                            <KanbanView data={currentData} />
+                        )}
+
+                        {/* Custom View - placeholder for now */}
+                        {viewMode === 'custom' && (
+                            <div className="flex items-center justify-center h-full text-slate-500">
+                                <div className="text-center">
+                                    <p className="text-lg font-medium">詳細表示</p>
+                                    <p className="text-sm mt-2">カスタムビューは今後実装予定</p>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    /* Non-library tabs - placeholder */
+                    <div className="flex items-center justify-center h-full text-slate-500">
+                        <div className="text-center">
+                            <Database size={48} className="mx-auto mb-4 opacity-50" />
+                            <p className="text-lg font-medium">{primaryCategory} / {subCategory}</p>
+                            <p className="text-sm mt-2">このカテゴリは今後実装予定です</p>
+                        </div>
+                    </div>
+                )}
             </main>
 
             {/* Footer - Stats Bar */}
             <footer className="h-6 bg-slate-950 border-t border-slate-800 px-4 flex items-center justify-between text-[10px] font-mono text-slate-600 uppercase">
                 <span>Category: {primaryCategory}/{subCategory}</span>
-                <span>Characters: {Object.keys(database.characters).length}</span>
-                <span>Abilities: {Object.keys(database.abilities).length}</span>
-                <span>Enemies: {Object.keys(database.enemies).length}</span>
+                <span>View: {viewMode}</span>
+                <span>Items: {currentData.length}</span>
             </footer>
         </div>
     );

@@ -1,0 +1,18 @@
+{
+    "images": [
+        {
+            "id": "cg-opening",
+            "name": "オープニング",
+            "description": "ゲーム開始時のオープニングCG",
+            "file": "opening.png",
+            "category": "ストーリー"
+        },
+        {
+            "id": "cg-ending-a",
+            "name": "エンディングA",
+            "description": "ハッピーエンドのエンディングCG",
+            "file": "ending_a.png",
+            "category": "エンディング"
+        }
+    ]
+}
