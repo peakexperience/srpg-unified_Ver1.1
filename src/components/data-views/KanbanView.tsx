@@ -1,10 +1,11 @@
-import React from 'react';
+// import { AlertCircle, CheckCircle2, Circle, Clock } from 'lucide-react'; // Unused
 
 interface KanbanViewProps {
     data: Record<string, unknown>[];
+    onItemClick?: (item: Record<string, unknown>) => void;
 }
 
-export function KanbanView({ data }: KanbanViewProps) {
+export function KanbanView({ data, onItemClick }: KanbanViewProps) {
     // Group by status or type
     const getGroupKey = (item: Record<string, unknown>): string => {
         if (item.status) return item.status as string;
@@ -65,14 +66,15 @@ export function KanbanView({ data }: KanbanViewProps) {
                         {groups[groupKey].map((item, index) => (
                             <div
                                 key={(item.id as string) ?? index}
+                                onClick={() => onItemClick?.(item)}
                                 className="bg-slate-800 rounded-lg p-3 border border-slate-700 hover:border-slate-600 transition-all cursor-pointer"
                             >
                                 <p className="text-white text-sm font-medium truncate">
-                                    {(item.name as string) ?? 'Unknown'}
+                                    {String(item.name ?? 'Unknown')}
                                 </p>
                                 {item.description && (
                                     <p className="text-slate-500 text-xs mt-1 line-clamp-2">
-                                        {item.description as string}
+                                        {String(item.description)}
                                     </p>
                                 )}
                                 {item.defaultTags && (

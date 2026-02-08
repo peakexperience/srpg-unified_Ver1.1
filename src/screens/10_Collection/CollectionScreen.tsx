@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useGameStore } from '@/core/stores/useGameStore';
-import { useViewMode, ViewMode } from '@/core/hooks/useViewMode';
+import { useViewMode } from '@/core/hooks/useViewMode';
 import { ViewSwitcher } from '@/components/data-views/ViewSwitcher';
 import { TableView, CHARACTER_COLUMNS, ENEMY_COLUMNS, NPC_COLUMNS, PLACE_COLUMNS, ITEM_COLUMNS, SOUND_COLUMNS, EVENT_COLUMNS, CG_COLUMNS } from '@/components/data-views/TableView';
 import { GalleryView } from '@/components/data-views/GalleryView';
 import { KanbanView } from '@/components/data-views/KanbanView';
+import { DetailView } from '@/components/data-views/DetailView';
+import { CardEditor } from '@/components/features/CardEditor';
+import { SaveLoadPanel } from '@/components/features/SaveLoadPanel';
+import { PartyView } from '@/components/features/PartyView';
 import {
     Package, Sword, Sparkles, BookOpen, Library, Music, Settings,
     MapPin, User, Users, Skull, Box, Calendar, Image, Database,
-    ArrowLeft
+    ArrowLeft, Save, Heart
 } from 'lucide-react';
 
 // ===================================
 // Category Definitions
 // ===================================
-type PrimaryCategory = 'item' | 'equipment' | 'skill' | 'story' | 'library' | 'sound' | 'studio';
-type SecondaryTab = 'place' | 'character' | 'npc' | 'enemy' | 'item_dict' | 'event' | 'cg' | 'sound_db';
+type PrimaryCategory = 'party' | 'item' | 'equipment' | 'skill' | 'story' | 'library' | 'sound' | 'studio';
 
 interface SubCategoryDef {
     id: string;
@@ -24,6 +27,7 @@ interface SubCategoryDef {
 }
 
 const PRIMARY_CATEGORIES: { id: PrimaryCategory; label: string; icon: React.ElementType }[] = [
+    { id: 'party', label: 'パーティー', icon: Heart },
     { id: 'item', label: 'アイテム', icon: Package },
     { id: 'equipment', label: '装備', icon: Sword },
     { id: 'skill', label: 'スキル', icon: Sparkles },
@@ -34,6 +38,11 @@ const PRIMARY_CATEGORIES: { id: PrimaryCategory; label: string; icon: React.Elem
 ];
 
 const SUB_CATEGORIES: Record<PrimaryCategory, SubCategoryDef[]> = {
+    party: [
+        { id: 'current', label: '現在のパーティー', icon: Users },
+        { id: 'save', label: 'セーブ', icon: Save },
+        { id: 'load', label: 'ロード', icon: Database },
+    ],
     item: [
         { id: 'consumable', label: '消費', icon: Package },
         { id: 'material', label: '素材', icon: Box },
@@ -102,6 +111,7 @@ export const CollectionScreen: React.FC = () => {
     const [subCategory, setSubCategory] = useState<string>('character');
     const [dataCache, setDataCache] = useState<DataCache | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedItem, setSelectedItem] = useState<Record<string, unknown> | null>(null);
 
     const currentSubCategories = SUB_CATEGORIES[primaryCategory];
 
@@ -143,8 +153,6 @@ export const CollectionScreen: React.FC = () => {
     // Auto view switch based on tab
     useEffect(() => {
         if (subCategory === 'character') {
-            // Character tab defaults to custom view
-            // But since we don't have custom view yet, use gallery
             if (viewMode === 'list') setViewMode('gallery');
         }
     }, [subCategory]);
@@ -152,11 +160,18 @@ export const CollectionScreen: React.FC = () => {
     // Handle primary category change
     const handlePrimaryChange = (category: PrimaryCategory) => {
         setPrimaryCategory(category);
+        setSelectedItem(null); // Reset selection
         const firstSub = SUB_CATEGORIES[category][0];
         if (firstSub) {
             setSubCategory(firstSub.id);
         }
     };
+
+    // Handle sub category change
+    const handleSubCategoryChange = (id: string) => {
+        setSubCategory(id);
+        setSelectedItem(null); // Reset selection
+    }
 
     // Get current data based on tab
     const getData = (): Record<string, unknown>[] => {
@@ -203,7 +218,7 @@ export const CollectionScreen: React.FC = () => {
     // Render
     // ===================================
     return (
-        <div className="w-full h-full bg-slate-950 flex flex-col">
+        <div className="w-full h-full bg-slate-950 flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
             {/* Primary Navigation */}
             <header className="h-12 bg-slate-900 border-b border-slate-800 px-4 flex items-center">
                 <button
@@ -222,8 +237,8 @@ export const CollectionScreen: React.FC = () => {
                                 key={cat.id}
                                 onClick={() => handlePrimaryChange(cat.id)}
                                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-all ${isActive
-                                        ? 'bg-amber-600 text-white'
-                                        : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                                    ? 'bg-amber-600 text-white'
+                                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
                                     }`}
                             >
                                 <Icon size={16} />
@@ -234,7 +249,7 @@ export const CollectionScreen: React.FC = () => {
                 </nav>
 
                 {/* View Switcher */}
-                {primaryCategory === 'library' && (
+                {primaryCategory === 'library' && !selectedItem && (
                     <div className="ml-4">
                         <ViewSwitcher currentView={viewMode} onViewChange={setViewMode} />
                     </div>
@@ -249,10 +264,10 @@ export const CollectionScreen: React.FC = () => {
                     return (
                         <button
                             key={sub.id}
-                            onClick={() => setSubCategory(sub.id)}
+                            onClick={() => handleSubCategoryChange(sub.id)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-all ${isActive
-                                    ? 'bg-slate-700 text-white'
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                                ? 'bg-slate-700 text-white'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
                                 }`}
                         >
                             <Icon size={14} />
@@ -263,40 +278,59 @@ export const CollectionScreen: React.FC = () => {
             </nav>
 
             {/* Content Area */}
-            <main className="flex-1 overflow-hidden bg-slate-950/50">
+            <main className="flex-1 overflow-hidden bg-slate-950/50 relative">
                 {loading ? (
                     <div className="flex items-center justify-center h-full">
                         <div className="text-slate-500">読み込み中...</div>
                     </div>
                 ) : primaryCategory === 'library' ? (
-                    <>
-                        {/* List View */}
-                        {viewMode === 'list' && (
-                            <TableView data={currentData} columns={currentColumns} />
-                        )}
+                    // Library Mode
+                    selectedItem ? (
+                        <div className="absolute inset-0 z-10 bg-slate-950">
+                            <DetailView item={selectedItem} onBack={() => setSelectedItem(null)} />
+                        </div>
+                    ) : (
+                        <>
+                            {/* List View */}
+                            {viewMode === 'list' && (
+                                <TableView data={currentData} columns={currentColumns} onItemClick={setSelectedItem} />
+                            )}
 
-                        {/* Gallery View */}
-                        {viewMode === 'gallery' && (
-                            <GalleryView data={currentData} />
-                        )}
+                            {/* Gallery View */}
+                            {viewMode === 'gallery' && (
+                                <GalleryView data={currentData} onItemClick={setSelectedItem} />
+                            )}
 
-                        {/* Kanban View */}
-                        {viewMode === 'kanban' && (
-                            <KanbanView data={currentData} />
-                        )}
+                            {/* Kanban View */}
+                            {viewMode === 'kanban' && (
+                                <KanbanView data={currentData} onItemClick={setSelectedItem} />
+                            )}
 
-                        {/* Custom View - placeholder for now */}
-                        {viewMode === 'custom' && (
-                            <div className="flex items-center justify-center h-full text-slate-500">
-                                <div className="text-center">
-                                    <p className="text-lg font-medium">詳細表示</p>
-                                    <p className="text-sm mt-2">カスタムビューは今後実装予定</p>
+                            {/* Custom View - placeholder for now */}
+                            {viewMode === 'custom' && (
+                                <div className="flex items-center justify-center h-full text-slate-500">
+                                    <div className="text-center">
+                                        <p className="text-lg font-medium">詳細表示</p>
+                                        <p className="text-sm mt-2">カスタムビューは今後実装予定</p>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </>
+                            )}
+                        </>
+                    )
+                ) : primaryCategory === 'studio' && subCategory === 'card_editor' ? (
+                    // Editor Mode
+                    <div className="w-full h-full">
+                        <CardEditor />
+                    </div>
+                ) : primaryCategory === 'party' ? (
+                    // Party Mode
+                    <div className="w-full h-full overflow-auto">
+                        {subCategory === 'current' && <PartyView />}
+                        {subCategory === 'save' && <SaveLoadPanel mode="save" />}
+                        {subCategory === 'load' && <SaveLoadPanel mode="load" />}
+                    </div>
                 ) : (
-                    /* Non-library tabs - placeholder */
+                    /* Other tabs - placeholder */
                     <div className="flex items-center justify-center h-full text-slate-500">
                         <div className="text-center">
                             <Database size={48} className="mx-auto mb-4 opacity-50" />
@@ -310,7 +344,7 @@ export const CollectionScreen: React.FC = () => {
             {/* Footer - Stats Bar */}
             <footer className="h-6 bg-slate-950 border-t border-slate-800 px-4 flex items-center justify-between text-[10px] font-mono text-slate-600 uppercase">
                 <span>Category: {primaryCategory}/{subCategory}</span>
-                <span>View: {viewMode}</span>
+                <span>View: {selectedItem ? 'Detail' : viewMode}</span>
                 <span>Items: {currentData.length}</span>
             </footer>
         </div>

@@ -1,0 +1,113 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "SaveData",
+    "description": "SRPG Creator Kit セーブデータ構造",
+    "type": "object",
+    "required": [
+        "saveId",
+        "slotIndex",
+        "timestamp",
+        "playTimeSeconds",
+        "chapter",
+        "party",
+        "characters"
+    ],
+    "properties": {
+        "saveId": {
+            "type": "string",
+            "description": "ユニークなセーブID"
+        },
+        "slotIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 2,
+            "description": "セーブスロット番号 (0-2)"
+        },
+        "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "保存日時 (ISO8601)"
+        },
+        "playTimeSeconds": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "プレイ時間（秒）"
+        },
+        "chapter": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "現在のチャプター番号"
+        },
+        "party": {
+            "type": "object",
+            "required": [
+                "members",
+                "maxSize"
+            ],
+            "properties": {
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "maxItems": 4,
+                    "description": "パーティーメンバーのキャラクターID配列"
+                },
+                "maxSize": {
+                    "type": "integer",
+                    "default": 4,
+                    "description": "パーティー最大人数"
+                }
+            }
+        },
+        "characters": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "object",
+                "required": [
+                    "level",
+                    "exp",
+                    "currentHp",
+                    "currentMp",
+                    "isRecruited"
+                ],
+                "properties": {
+                    "level": {
+                        "type": "integer",
+                        "minimum": 1
+                    },
+                    "exp": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "currentHp": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "currentMp": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "isRecruited": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "description": "キャラクター別の進行状態"
+        },
+        "inventory": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "integer"
+            },
+            "description": "アイテムID: 所持数"
+        },
+        "flags": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "boolean"
+            },
+            "description": "ゲーム進行フラグ"
+        }
+    }
+}

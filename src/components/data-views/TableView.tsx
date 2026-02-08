@@ -9,9 +9,10 @@ export interface TableColumn {
 interface TableViewProps {
     data: Record<string, unknown>[];
     columns: TableColumn[];
+    onItemClick?: (item: Record<string, unknown>) => void;
 }
 
-export function TableView({ data, columns }: TableViewProps) {
+export function TableView({ data, columns, onItemClick }: TableViewProps) {
     if (data.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-slate-500">
@@ -39,7 +40,8 @@ export function TableView({ data, columns }: TableViewProps) {
                     {data.map((item, rowIndex) => (
                         <tr
                             key={(item.id as string) ?? rowIndex}
-                            className="hover:bg-slate-800/50 transition-colors border-b border-slate-800"
+                            onClick={() => onItemClick?.(item)}
+                            className={`hover:bg-slate-800/50 transition-colors border-b border-slate-800 ${onItemClick ? 'cursor-pointer' : ''}`}
                         >
                             {columns.map((col) => (
                                 <td key={col.key} className="px-4 py-3 text-sm text-slate-300">
@@ -60,22 +62,25 @@ export function TableView({ data, columns }: TableViewProps) {
 // Column Definitions
 // ===================================
 
-const tagRenderer = (tags: string[]) => (
-    <div className="flex gap-1 flex-wrap">
-        {(tags || []).map((tag, i) => (
-            <span
-                key={tag}
-                className="text-[10px] px-2 py-0.5 rounded"
-                style={{
-                    backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981'][i % 3] + '33',
-                    color: ['#60a5fa', '#a78bfa', '#34d399'][i % 3],
-                }}
-            >
-                {tag}
-            </span>
-        ))}
-    </div>
-);
+const tagRenderer = (value: unknown) => {
+    const tags = value as string[];
+    return (
+        <div className="flex gap-1 flex-wrap">
+            {(tags || []).map((tag, i) => (
+                <span
+                    key={tag}
+                    className="text-[10px] px-2 py-0.5 rounded"
+                    style={{
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981'][i % 3] + '33',
+                        color: ['#60a5fa', '#a78bfa', '#34d399'][i % 3],
+                    }}
+                >
+                    {tag}
+                </span>
+            ))}
+        </div>
+    );
+};
 
 export const CHARACTER_COLUMNS: TableColumn[] = [
     { key: 'id', label: 'ID' },

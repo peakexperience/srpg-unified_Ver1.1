@@ -30,8 +30,8 @@ const App: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center justify-center w-screen h-screen bg-slate-950">
-            <div className="game-viewport w-full max-w-4xl aspect-video bg-black shadow-2xl overflow-hidden ring-1 ring-white/10">
+        <div className="w-screen h-screen bg-slate-950">
+            <div className="game-viewport w-full h-full bg-black overflow-hidden">
                 {renderScreen()}
             </div>
         </div>

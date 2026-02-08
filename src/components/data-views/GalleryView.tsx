@@ -1,10 +1,11 @@
-import React from 'react';
+// import { Image, Box, User, Sword, Music, MapPin, Smile } from 'lucide-react'; // Unused
 
 interface GalleryViewProps {
     data: Record<string, unknown>[];
+    onItemClick?: (item: Record<string, unknown>) => void;
 }
 
-export function GalleryView({ data }: GalleryViewProps) {
+export function GalleryView({ data, onItemClick }: GalleryViewProps) {
     if (data.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-slate-500">
@@ -18,6 +19,7 @@ export function GalleryView({ data }: GalleryViewProps) {
             {data.map((item, index) => (
                 <div
                     key={(item.id as string) ?? index}
+                    onClick={() => onItemClick?.(item)}
                     className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 hover:border-amber-500/50 hover:bg-slate-800 transition-all cursor-pointer group"
                 >
                     {/* Image placeholder */}
@@ -27,23 +29,23 @@ export function GalleryView({ data }: GalleryViewProps) {
 
                     {/* Name */}
                     <h3 className="text-white font-bold text-sm truncate">
-                        {(item.name as string) ?? 'Unknown'}
+                        {String(item.name ?? 'Unknown')}
                     </h3>
 
                     {/* Subtitle/Type */}
                     {item.job && (
-                        <p className="text-amber-400 text-xs mt-1">{item.job as string}</p>
+                        <p className="text-amber-400 text-xs mt-1">{String(item.job)}</p>
                     )}
                     {item.type && (
-                        <p className="text-blue-400 text-xs mt-1">{item.type as string}</p>
+                        <p className="text-blue-400 text-xs mt-1">{String(item.type)}</p>
                     )}
                     {item.location && (
-                        <p className="text-purple-400 text-xs mt-1">{item.location as string}</p>
+                        <p className="text-purple-400 text-xs mt-1">{String(item.location)}</p>
                     )}
 
                     {/* Description */}
                     <p className="text-slate-500 text-xs mt-1 line-clamp-2">
-                        {(item.description as string) ?? ''}
+                        {String(item.description ?? '')}
                     </p>
 
                     {/* Tags */}
